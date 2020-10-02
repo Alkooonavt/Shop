@@ -1,0 +1,184 @@
+﻿@model Shop.Domain.DataAccess.DTO.ProductDTO
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Details";
+}
+<div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="product-content product-wrap clearfix product-deatil">
+        <div class="row">
+            <div class="col-md-5 col-sm-12 col-xs-12">
+                <div class="product-image">
+                    <div id="demo" class="carousel slide" data-ride="carousel">
+
+                        <ul class="carousel-indicators">
+                            <li data-target="#demo" data-slide-to="0" class="active"></li>
+                            @for (int i = 1; i < @Model.Photos.Count; i++)
+                            {
+                                <li data-target="#demo" data-slide-to=@i></li>
+                            }
+                        </ul>
+                        <div class="carousel-inner">
+                            @if (Model.Photos.Count > 0)
+                            {
+                                <div class="carousel-item active">
+                                    <img src=@Model.Photos.First().Url class="img-responsive img-size img-fluid" alt=""/>
+                                </div>
+                                @for (int i = 1; i < @Model.Photos.Count; i++)
+                                {
+                                    <div class="carousel-item">
+                                        <img src=@Model.Photos[i].Url class="img-responsive img-size img-fluid" alt=""/>
+                                    </div>
+
+                                }
+                            }
+                            else
+                            {
+                                <div class="carousel-item active">
+                                    <img src="https://pp.userapi.com/c831308/v831308450/3eb44/rasu8ictmE4.jpg" class="img-responsive img-size img-fluid" alt=""/>
+                                </div>
+                            }
+                        </div>
+                        <a class="carousel-control-prev" href="#demo" data-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </a>
+                        <a class="carousel-control-next" href="#demo" data-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-md-offset-1 col-sm-12 col-xs-12">
+                <h2>@Model.Name</h2>
+                <h3 class="price-container">
+                    @Model.Price тг
+                    <small>*Налоги включены</small>
+                </h3>
+                <hr/>
+                <div class="description description-tabs">
+                    @Model.Description
+                </div>
+                <hr/>
+                <select name="typeChoose">
+                    <option selected value=@Model.ProductTypes.First().Id>@Model.ProductTypes.First().Size</option>
+                    @for (int i = 1; i < @Model.ProductTypes.Count; i++)
+                    {
+                        <option value=@Model.ProductTypes[i].Id>@Model.ProductTypes[i].Size</option>
+                    }
+                </select>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="row">
+                        <div class="col-sm-12 col-md-6 col-lg-6">
+                            <a id="basket" class="btn btn-success btn-lg add-basket">Добавить в корзину(@Model.Price тг)</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-sm-12 col-md-6 col-lg-6">
+                            <a asp-area="Identity" asp-page="/Account/Login" type="button" class="btn btn-success btn-lg add-basket">Добавить в корзину( (@Model.Price тг)</a>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12">
+    <div class="comments">
+        <div class="comments-details">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="comment-box add-comment col-12">
+                    <span class="commenter-name">
+                        <input type="text" id="comentText" placeholder="Добавить коментарии">
+                        <button type="submit" id="addComent" class="btn btn-default">Добавить</button>
+                    </span>
+                </div>
+            }
+            <span class="total-comments comments-sort">@Model.Comments.Count Коментариев</span>
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="comment-box">
+                    <span class="commenter-name">
+                        <p>@comment.Name</p> <span class="comment-time">@comment.CreationPost</span>
+                    </span>
+                    <p class="comment-txt more">@comment.Body</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $("#basket").click(function () {
+            var url = "/Products/AddToBasket";
+            var choose = $('select[name=typeChoose] option').filter(':selected').text();
+            var data = {
+                "Id": parseInt(@Model.Id),
+                "SelectedType": {
+                    "Size":choose
+                    }
+            };
+            console.log(data);
+            $.ajax({
+                type: "Post",
+                url: url,
+                contentType: "application/json",
+                data: JSON.stringify(data),
+            });
+        });
+        $("#addComent").click(function () {
+            var url = "/Products/AddComents/@Model.Id";
+            var text = $('#comentText').val();
+            var name="@User.Identity.Name";
+            var data = {
+                "Name": name ,
+                "Body":text
+            };
+            if(text.trim()){
+            $.ajax({
+                type: "Post",
+                url: url,
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function () {
+                    var box = document.createElement("div");
+                    var span = document.createElement("span");
+                    var comment_text = document.createElement("p");
+                    var name = document.createElement("p");
+                    var time = document.createElement("span");
+
+                    box.classList.add("comment-box");
+                    span.classList.add("commenter-name");
+                    comment_text.classList.add("comment-txt", "more");
+                    time.classList.add("comment-time");
+
+                    name.innerText  = "@User.Identity.Name";
+                    time.innerText  = "@DateTime.Now";
+                    comment_text.innerText  = text;
+
+                    span.appendChild(name);
+                    span.appendChild(time);
+                    box.appendChild(span);
+                    box.appendChild(comment_text);
+                    document.getElementsByClassName("comments-details")[0].appendChild(box);
+                }
+            });
+            }
+            else {
+                alert("Error");
+                }
+        });
+    });
+
+
+</script>

@@ -1,0 +1,159 @@
+﻿
+<link rel="stylesheet" href="~/css/custom.css" />
+<div class="col-md-8 container bg-default">
+
+    <h4 class="my-4">
+        Billing Address
+    </h4>
+
+    <form>
+        <div class="form-row">
+            <div class="col-md-6 form-group">
+                <label for="firstname">Имя</label>
+                <input type="text" class="form-control" id="firstname" placeholder="Имя">
+                <div class="invalid-feedback">
+                    Имя необходимо
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="lastname">Фамилия</label>
+                <input type="text" class="form-control" id="lastname" placeholder="Фамилия">
+                <div class="invalid-feedback">
+                    Фамилия необходимо
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="adress">Адрес</label>
+            <input type="text" class="form-control" id="adress" placeholder="Сатпаева 10..." required>
+            <div class="invalid-feedback">
+                Введите адрес
+            </div>
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-md-4 form-group">
+                <label for="city">Город</label>
+                <select type="text" class="form-control" id="city">
+                    <option selected>Алма-Ата</option>
+                    <option> Кызылорда</option>
+                    <option>Нур-Султан</option>
+                    <option> Уральск</option>
+                    <option>Шымкент </option>
+                    <option> Петропавловск</option>
+                    <option> Актобе</option>
+                    <option>Актау </option>
+                    <option> Караганда</option>
+                    <option>Темиртау </option>
+                    <option>Тараз </option>
+                    <option>Туркестан</option>
+                    <option>Павлодар </option>
+                    <option>Кокшетау </option>
+                    <option> Усть-Каменогорск</option>
+                    <option>    Талдыкорган </option>
+                    <option> Семей </option>
+                    <option> Атырау</option>
+                    <option> Рудный</option>
+                    <option> Экибастуз</option>
+                </select>
+                <div class="invalid-feedback">
+
+                    Укажите действующий город.
+                </div>
+            </div>
+        </div>
+        <hr>
+
+        <h4 class="mb-4">Оплата</h4>
+        <form class="needs-validation" novalidate="">
+
+            <div class="row">
+                <div class="col-md-6"> <span>CREDIT/DEBIT CARD PAYMENT</span> </div>
+                <div class="col-md-6 text-right" style="margin-top: -5px;"> <img src="https://img.icons8.com/color/36/000000/visa.png"> <img src="https://img.icons8.com/color/36/000000/mastercard.png"> <img src="https://img.icons8.com/color/36/000000/amex.png"> </div>
+            </div>
+            <div class="form-group">
+                <label for="cc-number" class="control-label">CARD NUMBER</label>
+                <input id="cc-number" name="cc-number" type="tel" class="input-lg form-control cc-number" autocomplete="cc-number" placeholder="••••••••••••••••" required="" pattern="[0-9]{16}" data-value-missing="A credit card number is required" data-pattern-mismatch="The credit card number must be 16 digits">
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group"> <label for="cc-exp" class="control-label">CARD EXPIRY</label> <input id="cc-exp" type="tel" class="input-lg form-control cc-exp" autocomplete="cc-exp" placeholder="••/••" required> </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group"> <label for="cc-cvc" class="control-label">CARD CVC</label> <input id="cc-cvc" type="tel" class="input-lg form-control cc-cvc" name="cvvNumber" autocomplete="off" placeholder="•••" required> </div>
+                </div>
+            </div>
+            <div class="form-group"> <label for="numeric" class="control-label">CARD HOLDER NAME</label> <input id="card-name" type="text" class="input-lg form-control"> </div>
+
+            <hr class="mb-4">
+        </form>
+
+        <button id="checkout" class="btn btn-primary bt-lg btn-block " type="button">Оформить заказ</button>
+        <p id="result"></p>
+    </form>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/customjs.js"></script>
+<script src="~/js/validator.js"></script>
+<script src="~/js/jquery.creditCardValidator.js"></script>
+<script>
+    $("#checkout").click(function () {
+        var firstName = $("#firstname").val();
+        var lastname = $("#lastname").val();
+        var email = $("#email").val();
+        var adress = $("#adress").val();
+        var card_name = $("#card-name").val();
+        var card_number = $("#cc-number").val();
+        var card_year = $("#cc-exp").val();
+        var sec_no = $("#cc-cvc").val();
+        var city = $('#city').find(":selected").text();
+        console.log(card_year);
+        var data = {
+            "Email": email,
+            "Address": adress,
+            "City": city,
+            "FIO": firstName + " " + lastname,
+            "CreditCard": card_number,
+            "CardHoldersName": card_name,
+            "CardExpMonth": card_year,
+            "Ccv": sec_no
+        };
+        var url = "/Account/Order";
+        console.log(data);
+        $.ajax({
+            type: "Post",
+            url: url,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                if (response.success) {
+                    $("#result").text(response.responseText);
+                    $(function () {
+                        setTimeout(function() {
+                            window.location.replace("Basket");
+                        }, 5000);
+                    });
+                }
+                else {
+                    $("#result").text(response.responseText);
+                    }
+            }
+        });
+    });
+
+    $('#cc_number').validateCreditCard(function (result) {
+        alert('CC type: ' + result.card_type.name
+            + '\nLength validation: ' + result.length_valid
+            + '\nLuhn validation: ' + result.luhn_valid);
+    });
+
+</script>

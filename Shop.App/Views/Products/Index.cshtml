@@ -1,0 +1,56 @@
+﻿@model Shop.App.Models.IndexDto
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Одежды</h1><div class="container-fluid px-1 py-5 mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-sm-9">
+            <div class="card">
+                <div class="row">
+                    @foreach (var item in Model.Products)
+                    {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card card-1">
+                            @if (item.Photos.Count > 0)
+                            {
+                                <div class="product-pic"> <img class="pic2" src=@item.Photos.FirstOrDefault().Url> </div>
+                            }
+                            else
+                            {
+                                <div class="product-pic"> <img class="pic2" src=https://pp.userapi.com/c831308/v831308450/3eb44/rasu8ictmE4.jpg> </div>
+                         
+                            }
+                                <small class="category">@item.Category.Name</small>
+                            <h5 class="product-name">@item.Name</h5>
+                            <div class="row px-3 justify-content-between">
+                                <p class="price">@item.Price тг</p>
+                                @Html.ActionLink("Подробнее", "Details", new {id = item.Id})
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.Page.HasPreviousPage)
+{
+<a asp-action="Index"
+   asp-route-page="@(Model.Page.PageNumber - 1)"
+   class="btn btn-outline-dark col-3">
+    <i class="glyphicon glyphicon-chevron-left"></i>
+    Назад
+</a>
+}
+@if (Model.Page.HasNextPage)
+{
+<a asp-action="Index"
+   asp-route-page="@(Model.Page.PageNumber + 1)"
+   class="btn btn-outline-dark col-3">
+    Вперед
+    <i class="glyphicon glyphicon-chevron-right"></i>
+</a>
+}

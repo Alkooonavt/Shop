@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Shop.Domain.DataAccess.DTO.ShopingCartItemDto>
+
+@{
+    ViewData["Title"] = "Basket";
+}
+
+<link rel="stylesheet" href="~/css/custom.css" />
+<div class="container text-center">
+
+    <div class="col-md-5 col-sm-12">
+        <h1>Ваша корзина</h1>
+    </div>
+
+    <div class="col-md-12 col-sm-12 text-left">
+        <ul>
+            <li class="row d-flex justify-content-between">
+                <span>Продукт</span>
+                <span>Размер</span>
+                <span>Цена</span>
+            </li>
+            @foreach (var item in Model)
+            {
+            <li id=@item.ProductId class="row d-flex justify-content-between">
+                <span class="itemName">@item.Name</span>
+                <span class="size">@item.ChooseType.Size</span>
+                <span class="price">@item.Price kzt</span>
+                <a id="@item.Id"  class="btn btn-danger">Удалить</a>
+            </li>
+            }
+            @if (Model.Count()!=0)
+            {
+                <li class="row totals row d-flex justify-content-between">
+                    <span class="itemName">Итого:</span>
+                    <span class="price">@Model.Sum(x => x.Price)</span>
+
+                    <span class="order"> <a asp-area="" asp-controller="Account" asp-action="Order" class="text-center">Заказать</a></span>
+                </li>
+            }
+        </ul>
+    </div>
+
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/customjs.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".btn-danger").click(function () {
+            var url = "/Account/Delete";
+            var parentElement = $(this).parent()[0];
+            $.ajax({
+                type: "Post",
+                url: url,
+                contentType: "application/json",
+
+                data: JSON.stringify(parseInt(this.id)),
+                success: function (response) {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+</script>
